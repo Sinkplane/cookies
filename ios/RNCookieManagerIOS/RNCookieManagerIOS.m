@@ -55,6 +55,7 @@ RCT_EXPORT_METHOD(
     }
 
     if (useWebKit) {
+#if __has_include(<WebKit/WebKit.h>)
         if (@available(iOS 11.0, *)) {
             dispatch_async(dispatch_get_main_queue(), ^(){
                 WKHTTPCookieStore *cookieStore = [[WKWebsiteDataStore defaultDataStore] httpCookieStore];
@@ -65,6 +66,10 @@ RCT_EXPORT_METHOD(
         } else {
             reject(@"", NOT_AVAILABLE_ERROR_MESSAGE, nil);
         }
+#else
+        reject(@"", NOT_AVAILABLE_ERROR_MESSAGE, nil);
+        return;
+#endif
     } else {
         [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookie:cookie];
         resolve(@(YES));
@@ -110,6 +115,7 @@ RCT_EXPORT_METHOD(
     rejecter:(RCTPromiseRejectBlock)reject)
 {
     if (useWebKit) {
+#if __has_include(<WebKit/WebKit.h>)
         if (@available(iOS 11.0, *)) {
             dispatch_async(dispatch_get_main_queue(), ^(){
                 NSString *topLevelDomain = url.host;
@@ -134,6 +140,10 @@ RCT_EXPORT_METHOD(
         } else {
             reject(@"", NOT_AVAILABLE_ERROR_MESSAGE, nil);
         }
+#else
+        reject(@"", NOT_AVAILABLE_ERROR_MESSAGE, nil);
+        return;
+#endif
     } else {
         NSMutableDictionary *cookies = [NSMutableDictionary dictionary];
         for (NSHTTPCookie *cookie in [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:url]) {
@@ -149,6 +159,7 @@ RCT_EXPORT_METHOD(
     rejecter:(RCTPromiseRejectBlock)reject)
 {
     if (useWebKit) {
+#if __has_include(<WebKit/WebKit.h>)
         if (@available(iOS 11.0, *)) {
             dispatch_async(dispatch_get_main_queue(), ^(){
                 // https://stackoverflow.com/questions/46465070/how-to-delete-cookies-from-wkhttpcookiestore#answer-47928399
@@ -163,6 +174,10 @@ RCT_EXPORT_METHOD(
         } else {
             reject(@"", NOT_AVAILABLE_ERROR_MESSAGE, nil);
         }
+#else
+        reject(@"", NOT_AVAILABLE_ERROR_MESSAGE, nil);
+        return;
+#endif
     } else {
         NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
         for (NSHTTPCookie *c in cookieStorage.cookies) {
@@ -180,9 +195,10 @@ RCT_EXPORT_METHOD(
     resolver:(RCTPromiseResolveBlock)resolve
     rejecter:(RCTPromiseRejectBlock)reject) {
     __block NSNumber * foundCookies = @NO;
-    NSMutableArray<NSHTTPCookie *> * foundCookiesList = [NSMutableArray new];
 
     if (useWebKit) {
+        NSMutableArray<NSHTTPCookie *> * foundCookiesList = [NSMutableArray new];
+#if __has_include(<WebKit/WebKit.h>)
         if (@available(iOS 11.0, *)) {
             dispatch_async(dispatch_get_main_queue(), ^(){
                 NSString *topLevelDomain = url.host;
@@ -209,6 +225,10 @@ RCT_EXPORT_METHOD(
         } else {
             reject(@"", NOT_AVAILABLE_ERROR_MESSAGE, nil);
         }
+#else
+        reject(@"", NOT_AVAILABLE_ERROR_MESSAGE, nil);
+        return;
+#endif
     } else {
            NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
            for (NSHTTPCookie *c in cookieStorage.cookies) {
@@ -227,6 +247,7 @@ RCT_EXPORT_METHOD(
     rejecter:(RCTPromiseRejectBlock)reject)
 {
     if (useWebKit) {
+#if __has_include(<WebKit/WebKit.h>)
         if (@available(iOS 11.0, *)) {
             dispatch_async(dispatch_get_main_queue(), ^(){
                 WKHTTPCookieStore *cookieStore = [[WKWebsiteDataStore defaultDataStore] httpCookieStore];
@@ -237,6 +258,9 @@ RCT_EXPORT_METHOD(
         } else {
             reject(@"", NOT_AVAILABLE_ERROR_MESSAGE, nil);
         }
+#else
+        reject(@"", NOT_AVAILABLE_ERROR_MESSAGE, nil);
+#endif
     } else {
         NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
         resolve([self createCookieList:cookieStorage.cookies]);
@@ -341,7 +365,7 @@ RCT_EXPORT_METHOD(
       cookieDomain:(NSString *)cookieDomain
 {
     if ([originDomain isEqualToString: cookieDomain]) {
-        return @YES;
+        return YES;
     }
     NSString *parentDomain = [cookieDomain hasPrefix:@"."] ? cookieDomain : [@"." stringByAppendingString: cookieDomain];
     return [originDomain hasSuffix:parentDomain];
